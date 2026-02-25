@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NareshKart — IT Learning Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+
+    nav {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 16px;
+      font-weight: 600;
+    }
+
+    .hero {
+      padding: 80px 32px;
+      text-align: center;
+      background: linear-gradient(135deg,#1a1a2e,#0f3460);
+      color: white;
+    }
+
+    .hero h1 span {
+      color: #e94560;
+    }
+
+    .hero a {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 14px 32px;
+      background: #e94560;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+
+    footer {
+      background: #111;
+      color: #aaa;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div><strong>Naresh<span style="color:#e94560">Kart</span></strong></div>
+  <div>
+    <a href="login.html">Login</a>
+    <a href="signup.html">Sign Up</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Learn • Build • Grow with <span>NareshKart</span></h1>
+  <p>IT Books, Study Materials, Cloud, DevOps & Tech Gadgets</p>
+  <a href="products.html">Start Shopping →</a>
+</section>
+
+<footer>
+  © 2024 NareshKart — Powered by Naresh IT
+</footer>
+
+<script>
+  // If user already logged in, skip landing page
+  if (localStorage.getItem("nk_token")) {
+    window.location.href = "home.html";
+  }
+</script>
+
+</body>
+</html>
