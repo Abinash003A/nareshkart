@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Profile — NareshKart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family:Arial; background:#f5f5f5; }
+
+nav {
+  background:#1a1a2e;
+  color:#fff;
+  padding:16px 32px;
+  display:flex;
+  justify-content:space-between;
+}
+
+nav a { color:#fff; text-decoration:none; margin-left:14px; }
+
+.container {
+  padding:32px;
+  max-width:700px;
+  margin:auto;
+}
+
+.card {
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+  margin-bottom:20px;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:4px;
+  border:1px solid #ccc;
+}
+
+button {
+  padding:10px 14px;
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+  margin-right:8px;
+}
+
+.btn-update { background:#1a1a2e; color:#fff; }
+.btn-delete { background:#e94560; color:#fff; }
+.order {
+  border-bottom:1px solid #ddd;
+  padding:10px 0;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <strong>Naresh<span style="color:#e94560">Kart</span></strong>
+  <div>
+    <a href="home.html">Home</a>
+    <a href="cart.html">Cart</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Profile -->
+  <div class="card">
+    <h2>My Profile</h2>
+
+    <input type="text" id="name" placeholder="Name">
+    <input type="email" id="email" placeholder="Email">
+
+    <button class="btn-update" onclick="updateProfile()">Update</button>
+    <button class="btn-delete" onclick="deleteAccount()">Delete Account</button>
+  </div>
+
+  <!-- Orders -->
+  <div class="card">
+    <h2>Past Orders</h2>
+    <div id="orders"></div>
+  </div>
+
+</div>
+
+<script>
+const API = "/api";
+const token = localStorage.getItem("nk_token");
+if (!token) location.href="login.html";
+
+const headers = {
+  "Content-Type":"application/json",
+  "Authorization":"Bearer "+token
+};
+
+async function loadProfile() {
+  const res = await fetch(API+"/users/me",{headers});
+  const user = await res.json();
+
+  document.getElementById("name").value = user.name;
+  document.getElementById("email").value = user.email;
+}
+
+async function updateProfile() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+
+  const res = await fetch(API+"/users/me",{
+    method:"PUT",
+    headers:headers,
+    body:JSON.stringify({name,email})
+  });
+
+  if (res.ok) alert("Profile updated");
+}
+
+async function deleteAccount() {
+  if (!confirm("Are you sure?")) return;
+
+  await fetch(API+"/users/me",{
+    method:"DELETE",
+    headers:headers
+  });
+
+  localStorage.clear();
+  location.href="index.html";
+}
+
+async function loadOrders() {
+  const res = await fetch(API+"/orders",{headers});
+  const orders = await res.json();
+
+  const container = document.getElementById("orders");
+  container.innerHTML = "";
+
+  orders.forEach(o=>{
+    container.innerHTML += `
+      <div class="order">
+        Order ID: ${o.id}<br>
+        Total: ₹${o.total_amount}<br>
+        Location: ${o.location}<br>
+        Date: ${o.created_at}
+      </div>
+    `;
+  });
+}
+
+function logout(){
+  localStorage.clear();
+  location.href="login.html";
+}
+
+loadProfile();
+loadOrders();
+</script>
+
+</body>
+</html>
