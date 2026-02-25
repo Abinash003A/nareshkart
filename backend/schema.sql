@@ -29,3 +29,15 @@ CREATE TABLE IF NOT EXISTS orders (
   longitude VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS cart (
+  user_id INT,
+  product_id INT,
+  qty INT,
+  PRIMARY KEY (user_id, product_id)
+);
+
+CREATE TABLE IF NOT EXISTS wishlist (
+  user_id INT,
+  product_id INT,
+  PRIMARY KEY (user_id, product_id)
+);
