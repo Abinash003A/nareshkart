@@ -1,90 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>NareshKart — IT Learning Store</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-    }
-
-    nav {
-      background: #1a1a2e;
-      color: #fff;
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      margin-left: 16px;
-      font-weight: 600;
-    }
-
-    .hero {
-      padding: 80px 32px;
-      text-align: center;
-      background: linear-gradient(135deg,#1a1a2e,#0f3460);
-      color: white;
-    }
-
-    .hero h1 span {
-      color: #e94560;
-    }
-
-    .hero a {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 14px 32px;
-      background: #e94560;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: 700;
-    }
-
-    footer {
-      background: #111;
-      color: #aaa;
-      text-align: center;
-      padding: 20px;
-      font-size: 14px;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f5f5}
+    nav{background:#1a1a2e;color:#fff;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:#fff;text-decoration:none;margin-left:16px;font-weight:600}
+    .hero{padding:100px 32px;text-align:center;background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff}
+    .hero h1{font-size:2.4rem;margin-bottom:16px}
+    .hero h1 span{color:#e94560}
+    .hero p{font-size:1.1rem;color:#ccc;margin-bottom:32px}
+    .hero a{display:inline-block;padding:14px 36px;background:#e94560;color:#fff;text-decoration:none;border-radius:6px;font-weight:700;font-size:1rem}
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;padding:48px 32px;max-width:1000px;margin:auto}
+    .feat{background:#fff;padding:24px;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .feat .icon{font-size:2rem;margin-bottom:12px}
+    footer{background:#111;color:#aaa;text-align:center;padding:20px;font-size:14px}
   </style>
 </head>
 <body>
-
 <nav>
   <div><strong>Naresh<span style="color:#e94560">Kart</span></strong></div>
-  <div>
-    <a href="login.html">Login</a>
-    <a href="signup.html">Sign Up</a>
-  </div>
+  <div><a href="login.html">Login</a><a href="signup.html">Sign Up</a></div>
 </nav>
-
 <section class="hero">
   <h1>Learn • Build • Grow with <span>NareshKart</span></h1>
-  <p>IT Books, Study Materials, Cloud, DevOps & Tech Gadgets</p>
-  <a href="products.html">Start Shopping →</a>
+  <p>IT Books, Study Materials, Cloud, DevOps &amp; Tech Gadgets — Curated by Naresh IT</p>
+  <a href="signup.html">Get Started →</a>
 </section>
-
-<footer>
-  © 2024 NareshKart — Powered by Naresh IT
-</footer>
-
-<script>
-  // If user already logged in, skip landing page
-  if (localStorage.getItem("nk_token")) {
-    window.location.href = "home.html";
-  }
-</script>
-
+<div class="features">
+  <div class="feat"><div class="icon">📚</div><strong>IT Books</strong><p style="color:#666;margin-top:8px;font-size:14px">Curated books on Cloud, DevOps, Linux &amp; more</p></div>
+  <div class="feat"><div class="icon">🛒</div><strong>Easy Cart</strong><p style="color:#666;margin-top:8px;font-size:14px">Add, remove and checkout in seconds</p></div>
+  <div class="feat"><div class="icon">📍</div><strong>Location Delivery</strong><p style="color:#666;margin-top:8px;font-size:14px">Auto-detects your location for shipping</p></div>
+  <div class="feat"><div class="icon">🔒</div><strong>OTP Verified</strong><p style="color:#666;margin-top:8px;font-size:14px">Secure signup with email OTP via AWS SES</p></div>
+</div>
+<footer>© 2024 NareshKart — Powered by Naresh IT</footer>
+<script>if(localStorage.getItem("nk_token"))window.location.href="home.html";</script>
 </body>
 </html>
