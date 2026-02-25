@@ -1,20 +1,21 @@
-import jwt
-import bcrypt
-from datetime import datetime, timedelta
-from config import JWT_SECRET, JWT_EXPIRY_HOURS
+from functools import wraps
+from flask import request, jsonify
 
-def hash_password(password):
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get("Authorization")
 
-def verify_password(password, hashed):
-    return bcrypt.checkpw(password.encode(), hashed.encode())
+        if not token:
+            return jsonify({"message": "Token missing"}), 401
 
-def generate_jwt(user_id):
-    payload = {
-        "user_id": user_id,
-        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS)
-    }
-    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+        try:
+            token = token.split(" ")[1]
+            data = decode_jwt(token)
+            user_id = data["user_id"]
+        except:
+            return jsonify({"message": "Invalid token"}), 401
 
-def decode_jwt(token):
-    return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        return f(user_id, *args, **kwargs)
+
+    return decorated
