@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Products — NareshKart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { margin:0; font-family:Arial; background:#f5f5f5; }
+
+nav {
+  background:#1a1a2e;
+  color:#fff;
+  padding:16px 32px;
+  display:flex;
+  justify-content:space-between;
+}
+
+nav a { color:#fff; text-decoration:none; margin-left:14px; }
+
+.controls {
+  padding:20px 32px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+select, input {
+  padding:8px;
+  border-radius:4px;
+  border:1px solid #ccc;
+}
+
+.products {
+  padding:20px 32px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:20px;
+}
+
+.card {
+  background:#fff;
+  padding:16px;
+  border-radius:8px;
+}
+
+.price { color:#e94560; font-weight:bold; }
+
+button {
+  margin-top:8px;
+  padding:8px;
+  border:none;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.btn-cart { background:#1a1a2e; color:#fff; }
+.btn-buy  { background:#e94560; color:#fff; margin-left:6px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <strong>Naresh<span style="color:#e94560">Kart</span></strong>
+  <div>
+    <a href="home.html">Home</a>
+    <a href="cart.html">Cart</a>
+    <a href="wishlist.html">Wishlist</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+</nav>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="Search..." oninput="render()" />
+  <select id="category" onchange="render()">
+    <option value="">All Categories</option>
+    <option>Books</option>
+    <option>Materials</option>
+    <option>Gadgets</option>
+  </select>
+</div>
+
+<div class="products" id="product-list"></div>
+
+<script>
+const API = "/api";
+const token = localStorage.getItem("nk_token");
+if (!token) location.href = "login.html";
+
+const headers = {
+  "Content-Type":"application/json",
+  "Authorization":"Bearer "+token
+};
+
+let products = [];
+
+async function loadProducts() {
+  const res = await fetch(API + "/products");
+  products = await res.json();
+  render();
+}
+
+function render() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const cat = document.getElementById("category").value;
+
+  const list = document.getElementById("product-list");
+  list.innerHTML = "";
+
+  products
+    .filter(p =>
+      (!cat || p.category === cat) &&
+      (p.name.toLowerCase().includes(q))
+    )
+    .forEach(p => {
+      list.innerHTML += `
+        <div class="card">
+          <h4>${p.name}</h4>
+          <div>${p.category}</div>
+          <div class="price">₹${p.price}</div>
+          <button class="btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>
+          <button class="btn-buy" onclick="buyNow(${p.id})">Buy Now</button>
+        </div>
+      `;
+    });
+}
+
+async function addToCart(id) {
+  await fetch(API+"/cart",{
+    method:"POST",
+    headers:headers,
+    body:JSON.stringify({product_id:id, qty:1})
+  });
+}
+
+function buyNow(id) {
+  localStorage.setItem("buy_now", id);
+  location.href="checkout.html";
+}
+
+function logout(){
+  localStorage.clear();
+  location.href="login.html";
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>
