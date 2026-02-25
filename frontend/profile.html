@@ -1,162 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Profile — NareshKart</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body { margin:0; font-family:Arial; background:#f5f5f5; }
-
-nav {
-  background:#1a1a2e;
-  color:#fff;
-  padding:16px 32px;
-  display:flex;
-  justify-content:space-between;
-}
-
-nav a { color:#fff; text-decoration:none; margin-left:14px; }
-
-.container {
-  padding:32px;
-  max-width:700px;
-  margin:auto;
-}
-
-.card {
-  background:#fff;
-  padding:20px;
-  border-radius:8px;
-  margin-bottom:20px;
-}
-
-input {
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-  border-radius:4px;
-  border:1px solid #ccc;
-}
-
-button {
-  padding:10px 14px;
-  border:none;
-  border-radius:4px;
-  cursor:pointer;
-  margin-right:8px;
-}
-
-.btn-update { background:#1a1a2e; color:#fff; }
-.btn-delete { background:#e94560; color:#fff; }
-.order {
-  border-bottom:1px solid #ddd;
-  padding:10px 0;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <title>Profile — NareshKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f5f5}
+    nav{background:#1a1a2e;color:#fff;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:#fff;text-decoration:none;margin-left:16px;font-weight:600;font-size:14px}
+    .container{max-width:700px;margin:32px auto;padding:0 24px}
+    .card{background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:24px}
+    h2{color:#1a1a2e;margin-bottom:16px}
+    label{display:block;font-size:13px;color:#555;margin-bottom:4px;font-weight:600}
+    input{width:100%;padding:11px;margin-bottom:14px;border-radius:6px;border:1px solid #ddd;font-size:15px;outline:none}
+    input:focus{border-color:#e94560}
+    .btn-row{display:flex;gap:10px}
+    .btn{padding:10px 18px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:14px}
+    .btn-update{background:#1a1a2e;color:#fff}
+    .btn-delete{background:#fff;color:#e94560;border:1px solid #e94560}
+    .order{border-bottom:1px solid #f0f0f0;padding:14px 0}
+    .order:last-child{border:none}
+    .order-id{font-weight:700;color:#1a1a2e}
+    .order-meta{font-size:13px;color:#888;margin-top:4px}
+    .toast{position:fixed;bottom:24px;right:24px;background:#27ae60;color:#fff;padding:12px 20px;border-radius:6px;font-size:14px;display:none}
+    .empty{color:#888;font-size:14px;padding:12px 0}
+  </style>
 </head>
 <body>
-
 <nav>
-  <strong>Naresh<span style="color:#e94560">Kart</span></strong>
+  <div><strong>Naresh<span style="color:#e94560">Kart</span></strong></div>
   <div>
     <a href="home.html">Home</a>
     <a href="cart.html">Cart</a>
+    <a href="products.html">Shop</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
 </nav>
 
 <div class="container">
-
-  <!-- Profile -->
   <div class="card">
-    <h2>My Profile</h2>
-
-    <input type="text" id="name" placeholder="Name">
-    <input type="email" id="email" placeholder="Email">
-
-    <button class="btn-update" onclick="updateProfile()">Update</button>
-    <button class="btn-delete" onclick="deleteAccount()">Delete Account</button>
+    <h2>👤 My Profile</h2>
+    <label>Full Name</label>
+    <input type="text" id="name" placeholder="Your name"/>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="Your email"/>
+    <div class="btn-row">
+      <button class="btn btn-update" onclick="updateProfile()">Save Changes</button>
+      <button class="btn btn-delete" onclick="deleteAccount()">Delete Account</button>
+    </div>
   </div>
 
-  <!-- Orders -->
   <div class="card">
-    <h2>Past Orders</h2>
-    <div id="orders"></div>
+    <h2>📦 Order History</h2>
+    <div id="orders"><div class="empty">Loading orders...</div></div>
   </div>
-
 </div>
+<div class="toast" id="toast"></div>
 
 <script>
-const API = "/api";
-const token = localStorage.getItem("nk_token");
-if (!token) location.href="login.html";
+const API="/api";
+const token=localStorage.getItem("nk_token");
+if(!token)window.location.href="login.html";
+const headers={"Content-Type":"application/json","Authorization":"Bearer "+token};
 
-const headers = {
-  "Content-Type":"application/json",
-  "Authorization":"Bearer "+token
-};
-
-async function loadProfile() {
-  const res = await fetch(API+"/users/me",{headers});
-  const user = await res.json();
-
-  document.getElementById("name").value = user.name;
-  document.getElementById("email").value = user.email;
+function toast(msg,ok=true){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.style.background=ok?"#27ae60":"#e94560";
+  t.style.display="block"; setTimeout(()=>t.style.display="none",2500);
 }
 
-async function updateProfile() {
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-
-  const res = await fetch(API+"/users/me",{
-    method:"PUT",
-    headers:headers,
-    body:JSON.stringify({name,email})
-  });
-
-  if (res.ok) alert("Profile updated");
+async function loadProfile(){
+  const res=await fetch(API+"/users/me",{headers});
+  if(res.status===401){logout();return;}
+  const user=await res.json();
+  document.getElementById("name").value=user.name||"";
+  document.getElementById("email").value=user.email||"";
 }
 
-async function deleteAccount() {
-  if (!confirm("Are you sure?")) return;
+async function updateProfile(){
+  const name=document.getElementById("name").value.trim();
+  const email=document.getElementById("email").value.trim();
+  if(!name||!email){toast("Name and email are required",false);return;}
+  const res=await fetch(API+"/users/me",{method:"PUT",headers,body:JSON.stringify({name,email})});
+  if(res.ok)toast("Profile updated ✓");
+  else toast("Update failed",false);
+}
 
-  await fetch(API+"/users/me",{
-    method:"DELETE",
-    headers:headers
-  });
-
+async function deleteAccount(){
+  if(!confirm("Are you sure? This will permanently delete your account and all data."))return;
+  await fetch(API+"/users/me",{method:"DELETE",headers});
   localStorage.clear();
-  location.href="index.html";
+  window.location.href="index.html";
 }
 
-async function loadOrders() {
-  const res = await fetch(API+"/orders",{headers});
-  const orders = await res.json();
-
-  const container = document.getElementById("orders");
-  container.innerHTML = "";
-
-  orders.forEach(o=>{
-    container.innerHTML += `
-      <div class="order">
-        Order ID: ${o.id}<br>
-        Total: ₹${o.total_amount}<br>
-        Location: ${o.location}<br>
-        Date: ${o.created_at}
+async function loadOrders(){
+  const res=await fetch(API+"/orders",{headers});
+  const orders=await res.json();
+  const c=document.getElementById("orders");
+  if(!orders.length){c.innerHTML='<div class="empty">No orders yet. <a href="products.html" style="color:#e94560">Start shopping!</a></div>';return;}
+  c.innerHTML=orders.map(o=>`
+    <div class="order">
+      <div class="order-id">Order #${o.id}</div>
+      <div class="order-meta">
+        Total: <strong>₹${o.total_amount}</strong> &nbsp;|&nbsp;
+        📍 ${o.location} &nbsp;|&nbsp;
+        🗓 ${new Date(o.created_at).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}
       </div>
-    `;
-  });
+    </div>`).join("");
 }
 
-function logout(){
-  localStorage.clear();
-  location.href="login.html";
-}
+function logout(){localStorage.clear();window.location.href="login.html";}
 
 loadProfile();
 loadOrders();
 </script>
-
 </body>
 </html>
