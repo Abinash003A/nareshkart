@@ -1,7 +1,3 @@
-"""
-Redis client for OTP, sessions
-"""
-
 import redis
 from config import REDIS_HOST, REDIS_PORT
 
