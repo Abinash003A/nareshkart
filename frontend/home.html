@@ -1,178 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Home — NareshKart</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body {
-  margin:0;
-  font-family: Arial, sans-serif;
-  background:#f5f5f5;
-}
-
-nav {
-  background:#1a1a2e;
-  color:#fff;
-  padding:16px 32px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-nav a {
-  color:#fff;
-  text-decoration:none;
-  margin-left:16px;
-  font-weight:600;
-}
-
-.section {
-  padding:40px 32px;
-}
-
-.products {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-  gap:20px;
-}
-
-.card {
-  background:#fff;
-  padding:16px;
-  border-radius:8px;
-}
-
-.card h4 {
-  margin:0 0 6px 0;
-}
-
-.price {
-  color:#e94560;
-  font-weight:bold;
-}
-
-button {
-  margin-top:8px;
-  padding:8px 10px;
-  border:none;
-  border-radius:4px;
-  cursor:pointer;
-}
-
-.btn-cart {
-  background:#1a1a2e;
-  color:white;
-}
-
-.btn-wish {
-  background:#e94560;
-  color:white;
-  margin-left:6px;
-}
-
-footer {
-  background:#111;
-  color:#aaa;
-  text-align:center;
-  padding:20px;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <title>Home — NareshKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f5f5}
+    nav{background:#1a1a2e;color:#fff;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:#fff;text-decoration:none;margin-left:16px;font-weight:600;font-size:14px}
+    .badge{background:#e94560;border-radius:50%;padding:1px 6px;font-size:11px;margin-left:2px}
+    .banner{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:40px 32px;text-align:center}
+    .banner h1 span{color:#e94560}
+    .section{padding:32px}
+    .section h2{margin-bottom:20px;color:#1a1a2e}
+    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+    .card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .card h4{margin-bottom:4px;color:#1a1a2e}
+    .category{font-size:12px;color:#888;margin-bottom:6px}
+    .price{color:#e94560;font-weight:700;font-size:1.1rem;margin-bottom:10px}
+    .actions{display:flex;gap:8px}
+    .btn{flex:1;padding:8px;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px}
+    .btn-cart{background:#1a1a2e;color:#fff}
+    .btn-wish{background:#fff;color:#e94560;border:1px solid #e94560}
+    .toast{position:fixed;bottom:24px;right:24px;background:#27ae60;color:#fff;padding:12px 20px;border-radius:6px;font-size:14px;display:none;z-index:999}
+    footer{background:#111;color:#aaa;text-align:center;padding:20px;font-size:14px}
+  </style>
 </head>
 <body>
-
 <nav>
-  <div>
-    <strong>Naresh<span style="color:#e94560">Kart</span></strong>
-  </div>
+  <div><strong>Naresh<span style="color:#e94560">Kart</span></strong></div>
   <div>
     <a href="products.html">Shop</a>
-    <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+    <a href="cart.html">Cart <span class="badge" id="cart-count">0</span></a>
     <a href="wishlist.html">Wishlist</a>
     <a href="profile.html" id="user-name">Profile</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
 </nav>
 
-<div class="section">
-  <h2>🔥 Hot Items</h2>
-  <div class="products" id="hot-products"></div>
+<div class="banner">
+  <h1>🔥 Hot Picks on <span>NareshKart</span></h1>
+  <p style="color:#ccc;margin-top:8px">Trending books &amp; gadgets for IT learners</p>
 </div>
 
-<footer>
-© 2024 NareshKart — IT Learning Store
-</footer>
+<div class="section">
+  <h2>🔥 Hot Items</h2>
+  <div class="products" id="hot-products"><p style="color:#888">Loading...</p></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer>© 2024 NareshKart — IT Learning Store</footer>
 
 <script>
-const API = "/api";
-const token = localStorage.getItem("nk_token");
+const API="/api";
+const token=localStorage.getItem("nk_token");
+if(!token)window.location.href="login.html";
+const headers={"Content-Type":"application/json","Authorization":"Bearer "+token};
+const user=JSON.parse(localStorage.getItem("nk_user")||"{}");
+document.getElementById("user-name").textContent=user.name||"Profile";
 
-if (!token) {
-  window.location.href = "login.html";
+function toast(msg,ok=true){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.style.background=ok?"#27ae60":"#e94560";
+  t.style.display="block"; setTimeout(()=>t.style.display="none",2500);
 }
 
-const headers = {
-  "Content-Type": "application/json",
-  "Authorization": "Bearer " + token
-};
-
-const user = JSON.parse(localStorage.getItem("nk_user"));
-document.getElementById("user-name").textContent = user.name;
-
-async function loadProducts() {
-  const res = await fetch(API + "/products");
-  const products = await res.json();
-
-  const hot = products.filter(p => p.hot);
-
-  const container = document.getElementById("hot-products");
-  container.innerHTML = "";
-
-  hot.forEach(p => {
-    container.innerHTML += `
-      <div class="card">
-        <h4>${p.name}</h4>
-        <div>${p.category}</div>
-        <div class="price">₹${p.price}</div>
-        <button class="btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>
-        <button class="btn-wish" onclick="addToWishlist(${p.id})">Wishlist</button>
+async function loadProducts(){
+  const res=await fetch(API+"/products");
+  const products=await res.json();
+  const hot=products.filter(p=>p.hot);
+  const c=document.getElementById("hot-products");
+  c.innerHTML=hot.length?"":'<p style="color:#888">No hot items right now.</p>';
+  hot.forEach(p=>{
+    c.innerHTML+=`<div class="card">
+      <h4>${p.emoji||""} ${p.name}</h4>
+      <div class="category">${p.category}</div>
+      <div class="price">₹${p.price}</div>
+      <div class="actions">
+        <button class="btn btn-cart" onclick="addToCart(${p.id})">Add to Cart</button>
+        <button class="btn btn-wish" onclick="addToWishlist(${p.id})">♡ Wish</button>
       </div>
-    `;
+    </div>`;
   });
 }
 
-async function addToCart(id) {
-  await fetch(API + "/cart", {
-    method:"POST",
-    headers:headers,
-    body:JSON.stringify({product_id:id, qty:1})
-  });
-  updateCartCount();
+async function addToCart(id){
+  const res=await fetch(API+"/cart",{method:"POST",headers,body:JSON.stringify({product_id:id,qty:1})});
+  if(res.ok){toast("Added to cart 🛒");updateCartCount();}
+  else toast("Failed to add","error");
 }
 
-async function addToWishlist(id) {
-  await fetch(API + "/wishlist", {
-    method:"POST",
-    headers:headers,
-    body:JSON.stringify({product_id:id})
-  });
+async function addToWishlist(id){
+  const res=await fetch(API+"/wishlist",{method:"POST",headers,body:JSON.stringify({product_id:id})});
+  if(res.ok)toast("Added to wishlist ❤️");
 }
 
-async function updateCartCount() {
-  const res = await fetch(API + "/cart", {headers});
-  const data = await res.json();
-  document.getElementById("cart-count").textContent = data.length;
+async function updateCartCount(){
+  const res=await fetch(API+"/cart",{headers});
+  const data=await res.json();
+  document.getElementById("cart-count").textContent=Array.isArray(data)?data.length:0;
 }
 
-function logout() {
-  localStorage.clear();
-  window.location.href="login.html";
-}
+function logout(){localStorage.clear();window.location.href="login.html";}
 
 loadProducts();
 updateCartCount();
 </script>
-
 </body>
 </html>
