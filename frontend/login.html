@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login — NareshKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#1a1a2e,#0f3460);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: #fff;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #1a1a2e;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .msg {
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: red;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #e94560;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Login to NareshKart</h2>
+
+  <div class="msg" id="msg"></div>
+
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+
+  <button onclick="login()">Login</button>
+
+  <div class="link">
+    New user? <a href="signup.html">Create account</a>
+  </div>
+</div>
+
+<script>
+  const API = "/api";
+
+  // If already logged in
+  if (localStorage.getItem("nk_token")) {
+    window.location.href = "home.html";
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
+
+    msg.textContent = "";
+
+    if (!email || !password) {
+      msg.textContent = "Email and password required";
+      return;
+    }
+
+    try {
+      const res = await fetch(API + "/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        msg.textContent = data.message || "Login failed";
+        return;
+      }
+
+      // Save auth data
+      localStorage.setItem("nk_token", data.token);
+      localStorage.setItem("nk_user", JSON.stringify(data.user));
+
+      window.location.href = "home.html";
+
+    } catch (err) {
+      msg.textContent = "Server error";
+    }
+  }
+</script>
+
+</body>
+</html>
