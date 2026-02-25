@@ -1,134 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>Login — NareshKart</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg,#1a1a2e,#0f3460);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .card {
-      background: #fff;
-      padding: 40px;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 10px;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      color: #1a1a2e;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #e94560;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .msg {
-      margin-bottom: 14px;
-      font-size: 14px;
-      color: red;
-    }
-
-    .link {
-      text-align: center;
-      margin-top: 16px;
-      font-size: 14px;
-    }
-
-    .link a {
-      color: #e94560;
-      text-decoration: none;
-      font-weight: bold;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f3460);min-height:100vh;display:flex;justify-content:center;align-items:center}
+    .card{background:#fff;padding:40px;width:100%;max-width:400px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    h2{color:#1a1a2e;margin-bottom:8px}
+    .sub{color:#888;font-size:14px;margin-bottom:24px}
+    label{display:block;font-size:13px;color:#555;margin-bottom:4px;font-weight:600}
+    input{width:100%;padding:12px;margin-bottom:16px;border-radius:6px;border:1px solid #ddd;font-size:15px;outline:none}
+    input:focus{border-color:#e94560}
+    button{width:100%;padding:13px;background:#e94560;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:15px;cursor:pointer}
+    button:hover{background:#c73652}
+    .msg{background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;border-radius:4px;padding:10px 12px;margin-bottom:16px;font-size:13px;display:none}
+    .link{text-align:center;margin-top:18px;font-size:14px;color:#666}
+    .link a{color:#e94560;text-decoration:none;font-weight:600}
   </style>
 </head>
 <body>
-
 <div class="card">
-  <h2>Login to NareshKart</h2>
-
+  <h2>Welcome back 👋</h2>
+  <p class="sub">Login to your NareshKart account</p>
   <div class="msg" id="msg"></div>
-
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-
+  <label>Email</label>
+  <input type="email" id="email" placeholder="you@example.com"/>
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Your password"/>
   <button onclick="login()">Login</button>
-
-  <div class="link">
-    New user? <a href="signup.html">Create account</a>
-  </div>
+  <div class="link">New here? <a href="signup.html">Create account</a></div>
 </div>
-
 <script>
-  const API = "/api";
+const API="/api";
+if(localStorage.getItem("nk_token"))window.location.href="home.html";
 
-  // If already logged in
-  if (localStorage.getItem("nk_token")) {
-    window.location.href = "home.html";
-  }
+function showMsg(t){const m=document.getElementById("msg");m.textContent=t;m.style.display="block";}
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const msg = document.getElementById("msg");
-
-    msg.textContent = "";
-
-    if (!email || !password) {
-      msg.textContent = "Email and password required";
-      return;
-    }
-
-    try {
-      const res = await fetch(API + "/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        msg.textContent = data.message || "Login failed";
-        return;
-      }
-
-      // Save auth data
-      localStorage.setItem("nk_token", data.token);
-      localStorage.setItem("nk_user", JSON.stringify(data.user));
-
-      window.location.href = "home.html";
-
-    } catch (err) {
-      msg.textContent = "Server error";
-    }
-  }
+async function login(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  document.getElementById("msg").style.display="none";
+  if(!email||!password){return showMsg("Email and password are required");}
+  try{
+    const res=await fetch(API+"/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+    const data=await res.json();
+    if(!res.ok){return showMsg(data.message||"Login failed");}
+    localStorage.setItem("nk_token",data.token);
+    localStorage.setItem("nk_user",JSON.stringify(data.user));
+    window.location.href="home.html";
+  }catch{showMsg("Server error. Please try again.");}
+}
+document.addEventListener("keydown",e=>{if(e.key==="Enter")login();});
 </script>
-
 </body>
 </html>
