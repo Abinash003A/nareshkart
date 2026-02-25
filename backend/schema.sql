@@ -1,43 +1,58 @@
 CREATE DATABASE IF NOT EXISTS nareshkart;
 USE nareshkart;
 
+-- USERS
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100),
-  email VARCHAR(150) UNIQUE,
-  password TEXT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  password TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- PRODUCTS
 CREATE TABLE IF NOT EXISTS products (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(200),
+  name VARCHAR(150),
   description TEXT,
   category VARCHAR(50),
   price INT,
   old_price INT,
-  rating FLOAT,
-  is_hot BOOLEAN,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  hot BOOLEAN DEFAULT FALSE
 );
 
+-- CART
+CREATE TABLE IF NOT EXISTS cart (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  product_id INT,
+  qty INT DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- WISHLIST
+CREATE TABLE IF NOT EXISTS wishlist (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  product_id INT,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- ORDERS
 CREATE TABLE IF NOT EXISTS orders (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   total_amount INT,
-  latitude VARCHAR(50),
-  longitude VARCHAR(50),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-CREATE TABLE IF NOT EXISTS cart (
-  user_id INT,
-  product_id INT,
-  qty INT,
-  PRIMARY KEY (user_id, product_id)
+  location TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS wishlist (
-  user_id INT,
+-- ORDER ITEMS
+CREATE TABLE IF NOT EXISTS order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT,
   product_id INT,
-  PRIMARY KEY (user_id, product_id)
+  qty INT,
+  FOREIGN KEY (order_id) REFERENCES orders(id)
 );
