@@ -1,0 +1,19 @@
+[Unit]
+Description=NareshKart Backend
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/opt/nareshkart/backend
+ExecStart=/opt/nareshkart/venv/bin/gunicorn app:app -b 0.0.0.0:8000
+
+Environment=AWS_REGION=us-east-1
+Environment=DB_SECRET_NAME=nareshkart-db-secret
+Environment=REDIS_HOST=redis.internal
+Environment=REDIS_PORT=6379
+Environment=JWT_SECRET=change_this
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
