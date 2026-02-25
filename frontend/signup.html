@@ -1,206 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>Sign Up — NareshKart</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg,#1a1a2e,#0f3460);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .card {
-      background: #fff;
-      padding: 36px;
-      width: 100%;
-      max-width: 420px;
-      border-radius: 10px;
-    }
-
-    h2 {
-      color: #1a1a2e;
-      margin-bottom: 10px;
-    }
-
-    .msg {
-      font-size: 14px;
-      margin-bottom: 12px;
-      color: red;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #e94560;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 6px;
-    }
-
-    .otp-box {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .otp-box input {
-      flex: 1;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .link {
-      text-align: center;
-      margin-top: 14px;
-      font-size: 14px;
-    }
-
-    .link a {
-      color: #e94560;
-      text-decoration: none;
-      font-weight: bold;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#1a1a2e,#0f3460);min-height:100vh;display:flex;justify-content:center;align-items:center}
+    .card{background:#fff;padding:36px;width:100%;max-width:420px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    h2{color:#1a1a2e;margin-bottom:4px}
+    .sub{color:#888;font-size:14px;margin-bottom:20px}
+    label{display:block;font-size:13px;color:#555;margin-bottom:4px;font-weight:600}
+    input{width:100%;padding:12px;margin-bottom:14px;border-radius:6px;border:1px solid #ddd;font-size:15px;outline:none}
+    input:focus{border-color:#e94560}
+    button{width:100%;padding:13px;background:#e94560;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:15px;cursor:pointer}
+    button:hover{background:#c73652}
+    .msg{background:#fff0f0;color:#c0392b;border:1px solid #f5c6cb;border-radius:4px;padding:10px 12px;margin-bottom:14px;font-size:13px;display:none}
+    .msg.ok{background:#f0fff4;color:#27ae60;border-color:#c3e6cb;}
+    .otp-row{display:flex;gap:8px;margin-bottom:16px}
+    .otp-row input{text-align:center;font-size:20px;font-weight:700;padding:12px 0;flex:1}
+    .link{text-align:center;margin-top:16px;font-size:14px;color:#666}
+    .link a{color:#e94560;text-decoration:none;font-weight:600}
+    .step{display:none}
+    .step.active{display:block}
   </style>
 </head>
 <body>
-
 <div class="card">
   <h2>Create Account</h2>
-  <p style="font-size:14px;color:#666;">OTP will be sent to your email</p>
-
+  <p class="sub">OTP will be sent to your email via AWS SES</p>
   <div class="msg" id="msg"></div>
 
-  <!-- STEP 1 -->
-  <div id="step1">
-    <input type="text" id="name" placeholder="Full Name" />
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <input type="password" id="confirm" placeholder="Confirm Password" />
+  <div class="step active" id="step1">
+    <label>Full Name</label>
+    <input type="text" id="name" placeholder="Your name"/>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@example.com"/>
+    <label>Password</label>
+    <input type="password" id="password" placeholder="Min 6 characters"/>
+    <label>Confirm Password</label>
+    <input type="password" id="confirm" placeholder="Repeat password"/>
     <button onclick="sendOtp()">Send OTP</button>
   </div>
 
-  <!-- STEP 2 -->
-  <div id="step2" style="display:none;">
-    <div class="otp-box">
-      <input maxlength="1" id="o1" />
-      <input maxlength="1" id="o2" />
-      <input maxlength="1" id="o3" />
-      <input maxlength="1" id="o4" />
-      <input maxlength="1" id="o5" />
-      <input maxlength="1" id="o6" />
+  <div class="step" id="step2">
+    <p style="color:#555;font-size:14px;margin-bottom:12px">Enter the 6-digit OTP sent to your email</p>
+    <div class="otp-row">
+      <input maxlength="1" id="o1" oninput="focusNext(this,'o2')"/>
+      <input maxlength="1" id="o2" oninput="focusNext(this,'o3')"/>
+      <input maxlength="1" id="o3" oninput="focusNext(this,'o4')"/>
+      <input maxlength="1" id="o4" oninput="focusNext(this,'o5')"/>
+      <input maxlength="1" id="o5" oninput="focusNext(this,'o6')"/>
+      <input maxlength="1" id="o6"/>
     </div>
-    <button onclick="verifyOtp()">Verify & Create Account</button>
+    <button onclick="verifyOtp()">Verify &amp; Create Account</button>
+    <p style="text-align:center;margin-top:12px;font-size:13px;color:#888">
+      Wrong email? <a href="#" onclick="goBack()" style="color:#e94560">Go back</a>
+    </p>
   </div>
 
-  <div class="link">
-    Already registered? <a href="login.html">Login</a>
-  </div>
+  <div class="link">Already registered? <a href="login.html">Login</a></div>
 </div>
 
 <script>
-  const API = "/api";
-  let signupData = {};
+const API="/api";
+let signupData={};
+if(localStorage.getItem("nk_token"))window.location.href="home.html";
 
-  // Redirect if already logged in
-  if (localStorage.getItem("nk_token")) {
-    window.location.href = "home.html";
-  }
+function showMsg(t,ok=false){
+  const m=document.getElementById("msg");
+  m.textContent=t; m.style.display="block";
+  m.className="msg"+(ok?" ok":"");
+}
 
-  function showMsg(text) {
-    document.getElementById("msg").textContent = text;
-  }
+function focusNext(el,nextId){
+  if(el.value.length===1)document.getElementById(nextId)?.focus();
+}
 
-  async function sendOtp() {
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const confirm = document.getElementById("confirm").value;
+function goBack(){
+  document.getElementById("step1").className="step active";
+  document.getElementById("step2").className="step";
+  document.getElementById("msg").style.display="none";
+}
 
-    if (!name || !email || !password || !confirm) {
-      return showMsg("All fields are required");
-    }
+async function sendOtp(){
+  const name=document.getElementById("name").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const confirm=document.getElementById("confirm").value;
+  if(!name||!email||!password||!confirm)return showMsg("All fields are required");
+  if(password.length<6)return showMsg("Password must be at least 6 characters");
+  if(password!==confirm)return showMsg("Passwords do not match");
+  signupData={name,email,password};
+  try{
+    const res=await fetch(API+"/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+    const data=await res.json();
+    if(!res.ok)return showMsg(data.message||"Failed to send OTP");
+    document.getElementById("step1").className="step";
+    document.getElementById("step2").className="step active";
+    showMsg("OTP sent! Check your email 📧",true);
+  }catch{showMsg("Server error. Please try again.");}
+}
 
-    if (password !== confirm) {
-      return showMsg("Passwords do not match");
-    }
-
-    signupData = { name, email, password };
-
-    try {
-      const res = await fetch(API + "/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return showMsg(data.message || "OTP send failed");
-      }
-
-      document.getElementById("step1").style.display = "none";
-      document.getElementById("step2").style.display = "block";
-      showMsg("OTP sent to email");
-
-    } catch {
-      showMsg("Server error");
-    }
-  }
-
-  async function verifyOtp() {
-    const otp =
-      o1.value + o2.value + o3.value + o4.value + o5.value + o6.value;
-
-    if (otp.length !== 6) {
-      return showMsg("Enter 6-digit OTP");
-    }
-
-    try {
-      const res = await fetch(API + "/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...signupData,
-          otp: otp
-        })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        return showMsg(data.message || "OTP verification failed");
-      }
-
-      localStorage.setItem("nk_token", data.token);
-      localStorage.setItem("nk_user", JSON.stringify(data.user));
-
-      window.location.href = "home.html";
-
-    } catch {
-      showMsg("Server error");
-    }
-  }
+async function verifyOtp(){
+  const otp=[o1,o2,o3,o4,o5,o6].map(id=>document.getElementById(id).value).join("");
+  if(otp.length!==6)return showMsg("Enter all 6 digits");
+  try{
+    const res=await fetch(API+"/auth/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...signupData,otp})});
+    const data=await res.json();
+    if(!res.ok)return showMsg(data.message||"OTP verification failed");
+    localStorage.setItem("nk_token",data.token);
+    localStorage.setItem("nk_user",JSON.stringify(data.user));
+    window.location.href="home.html";
+  }catch{showMsg("Server error. Please try again.");}
+}
 </script>
-
 </body>
 </html>
