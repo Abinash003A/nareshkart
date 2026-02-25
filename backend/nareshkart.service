@@ -12,6 +12,7 @@ Environment=DB_SECRET_NAME=nareshkart-db-secret
 Environment=REDIS_HOST=redis.internal
 Environment=REDIS_PORT=6379
 Environment=JWT_SECRET=change_this
+Environment=SES_SENDER_EMAIL=your_verified_email@example.com
 
 Restart=always
 
