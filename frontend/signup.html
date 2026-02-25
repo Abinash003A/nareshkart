@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up — NareshKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#1a1a2e,#0f3460);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: #fff;
+      padding: 36px;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 10px;
+    }
+
+    h2 {
+      color: #1a1a2e;
+      margin-bottom: 10px;
+    }
+
+    .msg {
+      font-size: 14px;
+      margin-bottom: 12px;
+      color: red;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .otp-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .otp-box input {
+      flex: 1;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #e94560;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Create Account</h2>
+  <p style="font-size:14px;color:#666;">OTP will be sent to your email</p>
+
+  <div class="msg" id="msg"></div>
+
+  <!-- STEP 1 -->
+  <div id="step1">
+    <input type="text" id="name" placeholder="Full Name" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <input type="password" id="confirm" placeholder="Confirm Password" />
+    <button onclick="sendOtp()">Send OTP</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="step2" style="display:none;">
+    <div class="otp-box">
+      <input maxlength="1" id="o1" />
+      <input maxlength="1" id="o2" />
+      <input maxlength="1" id="o3" />
+      <input maxlength="1" id="o4" />
+      <input maxlength="1" id="o5" />
+      <input maxlength="1" id="o6" />
+    </div>
+    <button onclick="verifyOtp()">Verify & Create Account</button>
+  </div>
+
+  <div class="link">
+    Already registered? <a href="login.html">Login</a>
+  </div>
+</div>
+
+<script>
+  const API = "/api";
+  let signupData = {};
+
+  // Redirect if already logged in
+  if (localStorage.getItem("nk_token")) {
+    window.location.href = "home.html";
+  }
+
+  function showMsg(text) {
+    document.getElementById("msg").textContent = text;
+  }
+
+  async function sendOtp() {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm").value;
+
+    if (!name || !email || !password || !confirm) {
+      return showMsg("All fields are required");
+    }
+
+    if (password !== confirm) {
+      return showMsg("Passwords do not match");
+    }
+
+    signupData = { name, email, password };
+
+    try {
+      const res = await fetch(API + "/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return showMsg(data.message || "OTP send failed");
+      }
+
+      document.getElementById("step1").style.display = "none";
+      document.getElementById("step2").style.display = "block";
+      showMsg("OTP sent to email");
+
+    } catch {
+      showMsg("Server error");
+    }
+  }
+
+  async function verifyOtp() {
+    const otp =
+      o1.value + o2.value + o3.value + o4.value + o5.value + o6.value;
+
+    if (otp.length !== 6) {
+      return showMsg("Enter 6-digit OTP");
+    }
+
+    try {
+      const res = await fetch(API + "/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...signupData,
+          otp: otp
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return showMsg(data.message || "OTP verification failed");
+      }
+
+      localStorage.setItem("nk_token", data.token);
+      localStorage.setItem("nk_user", JSON.stringify(data.user));
+
+      window.location.href = "home.html";
+
+    } catch {
+      showMsg("Server error");
+    }
+  }
+</script>
+
+</body>
+</html>
