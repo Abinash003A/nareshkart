@@ -1,21 +1,20 @@
-"""
-Auth utilities: password hashing & JWT
-"""
-
-import bcrypt
 import jwt
-import datetime
-from config import JWT_SECRET, JWT_EXPIRY_SECONDS
+import bcrypt
+from datetime import datetime, timedelta
+from config import JWT_SECRET, JWT_EXPIRY_HOURS
 
-def hash_password(password: str) -> str:
+def hash_password(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 def verify_password(password, hashed):
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
-def generate_jwt(user_id: int) -> str:
+def generate_jwt(user_id):
     payload = {
         "user_id": user_id,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXPIRY_SECONDS)
+        "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+def decode_jwt(token):
+    return jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
