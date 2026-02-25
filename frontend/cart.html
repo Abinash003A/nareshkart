@@ -1,154 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Cart — NareshKart</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body { margin:0; font-family:Arial; background:#f5f5f5; }
-
-nav {
-  background:#1a1a2e;
-  color:#fff;
-  padding:16px 32px;
-  display:flex;
-  justify-content:space-between;
-}
-
-nav a { color:#fff; text-decoration:none; margin-left:14px; }
-
-.container {
-  padding:32px;
-}
-
-.item {
-  background:#fff;
-  padding:16px;
-  margin-bottom:16px;
-  border-radius:8px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.controls button {
-  padding:6px 10px;
-  margin-left:6px;
-  border:none;
-  cursor:pointer;
-}
-
-.total {
-  margin-top:24px;
-  font-size:18px;
-  font-weight:bold;
-}
-
-.checkout-btn {
-  margin-top:16px;
-  padding:12px 20px;
-  background:#e94560;
-  color:#fff;
-  border:none;
-  cursor:pointer;
-  border-radius:6px;
-}
-</style>
+  <meta charset="UTF-8"/>
+  <title>Cart — NareshKart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f5f5}
+    nav{background:#1a1a2e;color:#fff;padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:#fff;text-decoration:none;margin-left:16px;font-weight:600;font-size:14px}
+    .container{max-width:800px;margin:32px auto;padding:0 24px}
+    h2{color:#1a1a2e;margin-bottom:20px}
+    .item{background:#fff;padding:16px 20px;margin-bottom:12px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+    .item-info h4{color:#1a1a2e;margin-bottom:4px}
+    .item-info .price{color:#e94560;font-weight:700}
+    .controls{display:flex;align-items:center;gap:8px}
+    .qty-btn{width:32px;height:32px;border:1px solid #ddd;background:#f5f5f5;border-radius:4px;cursor:pointer;font-size:16px;font-weight:700}
+    .qty-num{min-width:28px;text-align:center;font-weight:600}
+    .remove-btn{padding:6px 12px;background:#fff;color:#e94560;border:1px solid #e94560;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600}
+    .summary{background:#fff;padding:20px;border-radius:10px;margin-top:8px;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+    .total-line{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:16px}
+    .checkout-btn{width:100%;padding:14px;background:#e94560;color:#fff;border:none;border-radius:6px;font-weight:700;font-size:15px;cursor:pointer}
+    .checkout-btn:hover{background:#c73652}
+    .empty{text-align:center;padding:60px 20px;color:#888}
+    .empty a{color:#e94560;text-decoration:none;font-weight:600}
+  </style>
 </head>
 <body>
-
 <nav>
-  <strong>Naresh<span style="color:#e94560">Kart</span></strong>
+  <div><strong>Naresh<span style="color:#e94560">Kart</span></strong></div>
   <div>
     <a href="home.html">Home</a>
     <a href="products.html">Shop</a>
+    <a href="profile.html">Profile</a>
     <a href="#" onclick="logout()">Logout</a>
   </div>
 </nav>
 
 <div class="container">
-  <h2>Your Cart</h2>
+  <h2>🛒 Your Cart</h2>
   <div id="cart-items"></div>
-  <div class="total">Total: ₹<span id="total">0</span></div>
-  <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+  <div id="summary" style="display:none" class="summary">
+    <div class="total-line"><span>Total</span><span>₹<span id="total">0</span></span></div>
+    <button class="checkout-btn" onclick="checkout()">Proceed to Checkout →</button>
+  </div>
 </div>
 
 <script>
-const API = "/api";
-const token = localStorage.getItem("nk_token");
-if (!token) location.href = "login.html";
+const API="/api";
+const token=localStorage.getItem("nk_token");
+if(!token)window.location.href="login.html";
+const headers={"Content-Type":"application/json","Authorization":"Bearer "+token};
+let cart=[];
 
-const headers = {
-  "Content-Type":"application/json",
-  "Authorization":"Bearer "+token
-};
-
-let cart = [];
-
-async function loadCart() {
-  const res = await fetch(API + "/cart", {headers});
-  cart = await res.json();
+async function loadCart(){
+  const res=await fetch(API+"/cart",{headers});
+  cart=await res.json();
   render();
 }
 
-function render() {
-  const container = document.getElementById("cart-items");
-  container.innerHTML = "";
-
-  let total = 0;
-
-  cart.forEach(item => {
-    total += item.price * item.qty;
-
-    container.innerHTML += `
-      <div class="item">
-        <div>
-          <div><strong>${item.name}</strong></div>
-          <div>₹${item.price} × ${item.qty}</div>
-        </div>
-        <div class="controls">
-          <button onclick="changeQty(${item.product_id}, -1)">-</button>
-          <button onclick="changeQty(${item.product_id}, 1)">+</button>
-          <button onclick="removeItem(${item.product_id})">Remove</button>
-        </div>
+function render(){
+  const c=document.getElementById("cart-items");
+  if(!cart.length){
+    c.innerHTML='<div class="empty"><p>Your cart is empty.</p><br><a href="products.html">Continue Shopping →</a></div>';
+    document.getElementById("summary").style.display="none";
+    return;
+  }
+  document.getElementById("summary").style.display="block";
+  let total=0;
+  c.innerHTML=cart.map(item=>{
+    total+=item.price*item.qty;
+    return `<div class="item">
+      <div class="item-info">
+        <h4>${item.name}</h4>
+        <div class="price">₹${item.price} × ${item.qty} = ₹${(item.price*item.qty).toFixed(2)}</div>
       </div>
-    `;
-  });
-
-  document.getElementById("total").textContent = total;
+      <div class="controls">
+        <button class="qty-btn" onclick="changeQty(${item.product_id},-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${item.product_id},1)">+</button>
+        <button class="remove-btn" onclick="removeItem(${item.product_id})">Remove</button>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("total").textContent=total.toFixed(2);
 }
 
-async function changeQty(id, delta) {
-  await fetch(API+"/cart",{
-    method:"POST",
-    headers:headers,
-    body:JSON.stringify({product_id:id, qty:delta})
-  });
+async function changeQty(id,delta){
+  await fetch(API+"/cart",{method:"POST",headers,body:JSON.stringify({product_id:id,qty:delta})});
   loadCart();
 }
 
-async function removeItem(id) {
-  await fetch(API+"/cart/"+id,{
-    method:"DELETE",
-    headers:headers
-  });
+async function removeItem(id){
+  await fetch(API+"/cart/"+id,{method:"DELETE",headers});
   loadCart();
 }
 
-function checkout() {
-  if (cart.length === 0) return alert("Cart empty");
+function checkout(){
   localStorage.removeItem("buy_now");
-  location.href = "checkout.html";
+  window.location.href="checkout.html";
 }
 
-function logout(){
-  localStorage.clear();
-  location.href="login.html";
-}
-
+function logout(){localStorage.clear();window.location.href="login.html";}
 loadCart();
 </script>
-
 </body>
 </html>
