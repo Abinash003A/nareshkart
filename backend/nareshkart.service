@@ -1,0 +1,16 @@
+[Unit]
+Description=NareshKart Flask Backend
+After=network.target
+
+[Service]
+# Change this to your Linux username
+# To check your current user run: whoami
+User=ec2-user
+WorkingDirectory=/opt/nareshkart/backend
+ExecStart=/opt/nareshkart/venv/bin/gunicorn -w 4 -b 0.0.0.0:8000 app:app
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
