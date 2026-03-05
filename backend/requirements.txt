@@ -1,0 +1,7 @@
+flask
+gunicorn
+pymysql
+bcrypt
+PyJWT
+redis
+boto3
